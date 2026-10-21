@@ -32,14 +32,14 @@ POSITIONS = {"CA": (0.2, 230.00), "FO": (0.2, 145.00), "FA": (0.6, 58.00)}
 TEMPLATES = {
     "YUL-TURN": [[("AC401", "YYZ", "YUL", 0, "12:00", 1.3, False),
                   ("AC412", "YUL", "YYZ", 0, "14:15", 1.4, False)]],
-    "YHZ-TURN": [[("AC604", "YYZ", "YHZ", 0, "13:30", 2.0, False),
-                  ("AC611", "YHZ", "YYZ", 0, "16:30", 2.3, False)]],
+    "YHZ-TURN": [[("AC604", "YYZ", "YHZ", 0, "13:30", 2.0, False),   # long sit in YHZ,
+                  ("AC611", "YHZ", "YYZ", 0, "19:30", 2.3, False)]],  # so duty rig decides
     "ORD-TURN": [[("AC511", "YYZ", "ORD", 0, "15:00", 1.9, False),
                   ("AC516", "ORD", "YYZ", 0, "18:00", 1.7, False)]],
     "YOW-YUL-DAY": [[("AC450", "YYZ", "YOW", 0, "11:00", 1.0, False),
                      ("AC455", "YOW", "YYZ", 0, "12:45", 1.0, False),
                      ("AC417", "YYZ", "YUL", 0, "15:00", 1.3, False),
-                     ("AC428", "YUL", "YYZ", 0, "17:15", 1.4, False)]],
+                     ("AC428", "YUL", "YYZ", 0, "19:15", 1.4, False)]],
     "YVR-2D": [[("AC103", "YYZ", "YVR", 0, "14:00", 4.8, False)],
                [("AC104", "YVR", "YYZ", 1, "16:30", 4.3, False)]],
     "YYC-2D": [[("AC137", "YYZ", "YYC", 0, "13:00", 4.0, False)],
@@ -52,14 +52,16 @@ TEMPLATES = {
                [("AC857", "LHR", "YYZ", 2, "12:00", 8.0, False)]],
     "FRA-3D": [[("AC872", "YYZ", "FRA", 0, "22:00", 7.8, False)],
                [("AC873", "FRA", "YYZ", 2, "11:00", 8.6, False)]],
-    "YVR-DH-2D": [[("AC105", "YYZ", "YVR", 0, "15:00", 4.8, True)],
-                  [("AC106", "YVR", "YYZ", 1, "17:00", 4.3, False)]],
+    # deadhead to YVR, then operate YVR-YYC the same day, then YYC-YYZ next day
+    "YVR-DH-2D": [[("AC105", "YYZ", "YVR", 0, "15:00", 4.8, True),
+                   ("AC218", "YVR", "YYC", 0, "21:00", 1.5, False)],
+                  [("AC146", "YYC", "YYZ", 1, "15:00", 3.6, False)]],
 }
 
 PAY_RULES = [
     ("min_day_guarantee_hrs", 4.0, "Minimum credit hours for any duty day"),
     ("duty_rig_ratio", 0.5, "Credit 1 hr per 2 hrs on duty (duty rig)"),
-    ("trip_rig_ratio", 0.25, "Credit 1 hr per 4 hrs away from base (trip rig)"),
+    ("trip_rig_ratio", 0.286, "Credit 1 hr per 3.5 hrs away from base (trip rig)"),
     ("deadhead_credit_ratio", 0.5, "Deadhead block hours credited at 50%"),
     ("monthly_guarantee_hrs", 70.0, "Minimum credit hours paid per month"),
 ]

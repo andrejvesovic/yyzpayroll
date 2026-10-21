@@ -1,0 +1,14 @@
+crew_id,pairing_id,cause,expected,system,impact,description
+10015,,NO_MONTHLY_GUARANTEE,33.12,0.0,-4802.4,Below monthly guarantee but no top-up paid
+10019,P-YYC-2D-1028,MISSING_TRIP,8.82,0.0,-1278.9,Trip on roster but not in system pay
+10028,P-YVR-DH-2D-1029,MISSING_TRIP,8.38,0.0,-486.04,Trip on roster but not in system pay
+10020,,WRONG_RATE,145.0,140.1,-466.58,Hourly rate differs from crew master rate
+10030,,WRONG_RATE,58.0,56.04,-158.29,Hourly rate differs from crew master rate
+10026,P-YVR-DH-2D-1025,DEADHEAD_FULL_CREDIT,8.38,10.3,111.36,Credit matches deadhead paid at 100% instead of 50%
+10034,P-YVR-DH-2D-1012,DEADHEAD_FULL_CREDIT,8.38,10.3,111.36,Credit matches deadhead paid at 100% instead of 50%
+10050,P-YHZ-TURN-1010,UNEXPLAINED,4.78,3.28,-87.0,Difference matches no known failure mode: review manually
+10042,,NO_MONTHLY_GUARANTEE,1.42,0.0,-82.36,Below monthly guarantee but no top-up paid
+10012,P-YHZ-TURN-1016,NO_DUTY_RIG,4.78,4.3,-69.6,Credit matches pay without duty rig applied
+10023,P-YOW-YUL-DAY-1029,NO_DUTY_RIG,5.45,4.7,-43.5,Credit matches pay without duty rig applied
+10044,P-FLL-2D-1023,NO_TRIP_RIG,8.45,8.0,-26.1,Credit matches pay without trip rig applied
+10013,P-YVR-2D-1022,NO_TRIP_RIG,9.17,9.1,-10.15,Credit matches pay without trip rig applied
