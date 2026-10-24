@@ -1,3 +1,4 @@
 crew_pay.duckdb
 __pycache__/
 .DS_Store
+snowflake_upload/

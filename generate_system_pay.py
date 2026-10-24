@@ -1,8 +1,10 @@
 """Simulate the payroll system's month-end pay file, with known errors planted in it.
 
-The "system" applies the same rules as calc_pay.py, except for a few crew where
+The "system" pays the same as expected_pay_lines, except for a few crew where
 it makes a realistic mistake. The mistakes are logged to planted_errors.csv as
 an answer key, so validate.py's results can be scored.
+
+Run calc_pay.py first: this reads its expected_pay_lines and failure_modes views.
 
 Outputs:
   data/system_pay_2026_10.csv   what the pay system says it will pay
@@ -14,7 +16,7 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from calc_pay import DB_PATH, duty_credits, load_rules, pay_lines, trip_credits
+from db import DB_PATH
 
 HERE = Path(__file__).parent
 DATA_DIR = HERE / "data"
@@ -36,21 +38,26 @@ MIN_CREDIT_FOR_TRIP_ERRORS = 85  # keeps the guarantee from absorbing trip-level
 def main():
     rng = random.Random(SEED)
     con = duckdb.connect(str(DB_PATH), read_only=True)
-    rules = load_rules(con)
+    guarantee_hrs = con.execute("SELECT monthly_guarantee_hrs FROM rules").fetchone()[0]
 
-    duties = duty_credits(con, rules)
-    correct = trip_credits(con, rules, duties).set_index("pairing_id")["trip_credit"]
-    variants = {
-        "NO_DUTY_RIG": trip_credits(con, rules, duty_credits(con, rules, duty_rig=False)),
-        "DEADHEAD_FULL_CREDIT": trip_credits(con, rules, duty_credits(con, rules, deadhead_ratio=1.0)),
-        "NO_TRIP_RIG": trip_credits(con, rules, duties, trip_rig=False),
-    }
+    # trip credit under each failure mode, keyed by pairing_id
+    modes = con.execute("""
+        SELECT pairing_id,
+               no_duty_rig          AS NO_DUTY_RIG,
+               deadhead_full_credit AS DEADHEAD_FULL_CREDIT,
+               no_trip_rig          AS NO_TRIP_RIG
+        FROM failure_modes
+    """).df().set_index("pairing_id")
 
-    expected = pay_lines(con, rules, trip_credits(con, rules, duties))
+    expected = con.execute("""
+        SELECT * FROM expected_pay_lines
+        ORDER BY crew_id, line_type, pairing_id NULLS LAST
+    """).df()
+    con.close()
     trips = expected[expected["line_type"] == "TRIP"].copy()
     month_credit = trips.groupby("crew_id")["credit_hrs"].sum()
     high_credit = set(month_credit[month_credit >= MIN_CREDIT_FOR_TRIP_ERRORS].index)
-    low_credit = set(month_credit[month_credit < rules["monthly_guarantee_hrs"]].index)
+    low_credit = set(month_credit[month_credit < guarantee_hrs].index)
 
     used, planted = set(), []
 
@@ -67,8 +74,8 @@ def main():
         return chosen
 
     # Trip-credit errors: only trips where the mistake actually changes the credit
-    for code, variant in variants.items():
-        wrong = trips["pairing_id"].map(variant.set_index("pairing_id")["trip_credit"])
+    for code in modes.columns:
+        wrong = trips["pairing_id"].map(modes[code])
         cands = trips[((wrong - trips["credit_hrs"]).abs() > 0.01) & trips["crew_id"].isin(high_credit)]
         for idx in pick(cands, PLAN[code]):
             trips.at[idx, "credit_hrs"] = wrong[idx]
@@ -93,7 +100,7 @@ def main():
 
     # The system works out guarantee top-ups from its own (possibly wrong) trip credits
     rates = trips.groupby("crew_id")["hourly_rate"].first()
-    shortfall = (rules["monthly_guarantee_hrs"] - trips.groupby("crew_id")["credit_hrs"].sum()).clip(lower=0).round(2)
+    shortfall = (guarantee_hrs - trips.groupby("crew_id")["credit_hrs"].sum()).clip(lower=0).round(2)
     shortfall = shortfall[(shortfall > 0) & ~shortfall.index.isin(no_guarantee)]
     topups = pd.DataFrame({"crew_id": shortfall.index, "line_type": "GUARANTEE", "pairing_id": None,
                            "credit_hrs": shortfall.values, "hourly_rate": rates[shortfall.index].values})

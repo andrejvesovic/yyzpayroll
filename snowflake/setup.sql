@@ -1,0 +1,6 @@
+-- Run this first in a Snowflake worksheet. It creates a place for the project to live.
+USE WAREHOUSE COMPUTE_WH;
+
+CREATE DATABASE IF NOT EXISTS CREW_PAY;
+CREATE SCHEMA IF NOT EXISTS CREW_PAY.PAYROLL;
+USE SCHEMA CREW_PAY.PAYROLL;
