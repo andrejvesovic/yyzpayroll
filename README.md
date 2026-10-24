@@ -59,6 +59,8 @@ flowchart LR
 
 All pay and validation logic is in SQL (`sql/`). It runs unchanged on DuckDB locally and on Snowflake. Python handles synthetic data generation, error planting and running the files. The Power BI report on top of the Snowflake views is documented in [`powerbi/`](powerbi/README.md).
 
+**Verified on Snowflake:** loaded the same data into Snowflake, ran `schema.sql` and `sql/` unchanged, and got identical results to the local run. Compare [`snowflake/snowflake_exceptions.csv`](snowflake/snowflake_exceptions.csv) with [`reports/exceptions_2026_10.csv`](reports/exceptions_2026_10.csv).
+
 ## The checks (`sql/05`–`08`)
 
 1. **Trip check** (`05`). Expected and system trips compared on (crew, pairing).

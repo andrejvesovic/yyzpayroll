@@ -1,4 +1,8 @@
--- Run this first in a Snowflake worksheet. It creates a place for the project to live.
+-- Run this first in a Snowflake SQL editor. Creates a small warehouse and a place for the project.
+CREATE WAREHOUSE IF NOT EXISTS COMPUTE_WH
+    WAREHOUSE_SIZE = 'XSMALL'
+    AUTO_SUSPEND = 60
+    AUTO_RESUME = TRUE;
 USE WAREHOUSE COMPUTE_WH;
 
 CREATE DATABASE IF NOT EXISTS CREW_PAY;
